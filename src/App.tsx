@@ -1,12 +1,18 @@
+import { useState } from "react";
 import "./App.css";
 import Wordle from "./Wordle";
+import wordlist from "./assets/wordlist.json";
+
+const getRandomAnswer = () =>
+  wordlist[Math.floor(Math.random() * wordlist.length)];
 
 function App() {
-  // TODO: Randomize the answer
+  const [answer, _] = useState(getRandomAnswer());
+
   return (
     <main>
       <h1>Wordle</h1>
-      {<Wordle answer="music" />}
+      {<Wordle answer={answer} />}
     </main>
   );
 }
