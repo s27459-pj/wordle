@@ -1,0 +1,39 @@
+.wordle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.wordle__row {
+  display: flex;
+  flex-direction: row;
+  gap: inherit;
+}
+
+.wordle__cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 5rem;
+  height: 5rem;
+  border: 3px solid var(--cell-border);
+  background-color: var(--cell-background);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.wordle__cell--empty {
+  --cell-border: #555;
+}
+.wordle__cell--neutral {
+  --cell-background: #333;
+  --cell-border: #333;
+}
+.wordle__cell--incorrect {
+  --cell-background: #a3750a;
+  --cell-border: #a3750a;
+}
+.wordle__cell--correct {
+  --cell-background: #4caf50;
+  --cell-border: #4caf50;
+}
