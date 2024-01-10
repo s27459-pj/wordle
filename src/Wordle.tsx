@@ -46,7 +46,7 @@ function Wordle({
         }
       }
       if (guess === answer) setGameState(GameState.Won);
-      if (activeRow === attempts - 1) setGameState(GameState.Lost);
+      else if (activeRow === attempts - 1) setGameState(GameState.Lost);
     },
     [answer, attempts, activeRow, usedLetters, addUsedLetter],
   );
