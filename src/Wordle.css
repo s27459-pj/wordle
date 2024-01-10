@@ -20,6 +20,7 @@
   background-color: var(--cell-background);
   font-size: 2rem;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
 .wordle__cell--empty {
