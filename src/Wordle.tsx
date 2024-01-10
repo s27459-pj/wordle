@@ -7,20 +7,48 @@ enum GameState {
   Lost = 2,
 }
 
+const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
+type UsedLetter = {
+  letter: string;
+  status: CellState;
+};
+
 function Wordle({
   answer,
   attempts = 6,
 }: { answer: string; attempts?: number }) {
   const [gameState, setGameState] = useState(GameState.InProgress);
   const [activeRow, setActiveRow] = useState(0);
+  const [usedLetters, setUsedLetters] = useState<UsedLetter[]>([]);
+
+  const addUsedLetter = useCallback(
+    (letter: string, status: UsedLetter["status"]) => {
+      setUsedLetters((usedLetters) => [...usedLetters, { letter, status }]);
+    },
+    [],
+  );
 
   const handleRowSubmitGuess = useCallback(
     (guess: string) => {
       setActiveRow((activeRow) => activeRow + 1);
+      for (const letter of guess) {
+        // FIXME: This doesn't replace existing used letters with a new status
+        //        when it's better (e.g. incorrect -> correct)
+        if (usedLetters.find((ul) => ul.letter === letter)) continue;
+        if (answer.includes(letter)) {
+          if (guess.indexOf(letter) === answer.indexOf(letter)) {
+            addUsedLetter(letter, CellState.Correct);
+          } else {
+            addUsedLetter(letter, CellState.Incorrect);
+          }
+        } else {
+          addUsedLetter(letter, CellState.Neutral);
+        }
+      }
       if (guess === answer) setGameState(GameState.Won);
       if (activeRow === attempts - 1) setGameState(GameState.Lost);
     },
-    [answer, attempts, activeRow],
+    [answer, attempts, activeRow, usedLetters, addUsedLetter],
   );
 
   const status = useMemo(() => {
@@ -45,6 +73,7 @@ function Wordle({
           />
         ))}
       </div>
+      <WordleUsedLetters usedLetters={usedLetters} />
     </div>
   );
 }
@@ -79,7 +108,7 @@ function WordleRow({
         submitGuess();
         return;
       }
-      if (!/^[a-zA-Z]$/.test(e.key)) return;
+      if (!LETTERS.includes(e.key.toLowerCase())) return;
       if (guess.length >= width) return;
       setGuess((guess) => [...guess, e.key.toLowerCase()]);
     };
@@ -132,6 +161,39 @@ function WordleCell({ state, letter }: { state: CellState; letter?: string }) {
     }
   }, [state]);
   return <div className={`wordle__cell ${stateClassName}`}>{letter}</div>;
+}
+
+function WordleUsedLetters({ usedLetters }: { usedLetters: UsedLetter[] }) {
+  return (
+    <div className="used-letters">
+      {LETTERS.map((letter) => {
+        const usedLetter = usedLetters.find((ul) => ul.letter === letter);
+        return (
+          <WordleUsedLetter
+            letter={letter}
+            status={usedLetter?.status ?? CellState.Empty}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function WordleUsedLetter({ letter, status }: UsedLetter) {
+  const usedLetterClassName = useMemo(() => {
+    switch (status) {
+      case CellState.Empty:
+        return "letter--empty";
+      case CellState.Neutral:
+        return "letter--neutral";
+      case CellState.Incorrect:
+        return "letter--incorrect";
+      case CellState.Correct:
+        return "letter--correct";
+    }
+  }, [status]);
+
+  return <div className={`letter ${usedLetterClassName}`}>{letter}</div>;
 }
 
 export default Wordle;

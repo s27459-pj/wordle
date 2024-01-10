@@ -1,6 +1,10 @@
 .wordle {
   display: flex;
   flex-direction: column;
+
+  --color-neutral: #333;
+  --color-incorrect: #a3750a;
+  --color-correct: #4caf50;
 }
 
 .wordle .status {
@@ -40,14 +44,34 @@
   --cell-border: #555;
 }
 .wordle__cell--neutral {
-  --cell-background: #333;
-  --cell-border: #333;
+  --cell-background: var(--color-neutral);
+  --cell-border: var(--color-neutral);
 }
 .wordle__cell--incorrect {
-  --cell-background: #a3750a;
-  --cell-border: #a3750a;
+  --cell-background: var(--color-incorrect);
+  --cell-border: var(--color-incorrect);
 }
 .wordle__cell--correct {
-  --cell-background: #4caf50;
-  --cell-border: #4caf50;
+  --cell-background: var(--color-correct);
+  --cell-border: var(--color-correct);
+}
+
+.wordle > .used-letters {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+}
+.wordle > .used-letters > .letter {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+.wordle > .used-letters > .letter--neutral {
+  color: var(--color-neutral);
+}
+.wordle > .used-letters > .letter--incorrect {
+  color: var(--color-incorrect);
+}
+.wordle > .used-letters > .letter--correct {
+  color: var(--color-correct);
 }
