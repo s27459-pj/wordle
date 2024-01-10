@@ -1,6 +1,19 @@
 .wordle {
   display: flex;
   flex-direction: column;
+}
+
+.wordle .status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.wordle .row-wrapper {
+  display: flex;
+  flex-direction: column;
   gap: 0.3rem;
 }
 

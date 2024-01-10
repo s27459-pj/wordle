@@ -1,27 +1,50 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./Wordle.css";
 
+enum GameState {
+  InProgress = 0,
+  Won = 1,
+  Lost = 2,
+}
+
 function Wordle({
   answer,
   attempts = 6,
 }: { answer: string; attempts?: number }) {
+  const [gameState, setGameState] = useState(GameState.InProgress);
   const [activeRow, setActiveRow] = useState(0);
 
-  const handleRowSubmitGuess = useCallback((guess: string) => {
-    setActiveRow((activeRow) => activeRow + 1);
-    // TODO: Check if the guess is correct and end the game if so
-  }, []);
+  const handleRowSubmitGuess = useCallback(
+    (guess: string) => {
+      setActiveRow((activeRow) => activeRow + 1);
+      if (guess === answer) setGameState(GameState.Won);
+      if (activeRow === attempts - 1) setGameState(GameState.Lost);
+    },
+    [answer, attempts, activeRow],
+  );
+
+  const status = useMemo(() => {
+    switch (gameState) {
+      case GameState.Won:
+        return "You guessed the correct word. Congrats!";
+      case GameState.Lost:
+        return "You ran out of attempts. Game over!";
+    }
+  }, [gameState]);
 
   return (
     <div className="wordle">
-      {Array.from({ length: attempts }).map((_, idx) => (
-        <WordleRow
-          answer={answer}
-          width={answer.length}
-          active={idx === activeRow}
-          onRowSubmitGuess={handleRowSubmitGuess}
-        />
-      ))}
+      {status && <div className="status">{status}</div>}
+      <div className="row-wrapper">
+        {Array.from({ length: attempts }).map((_, idx) => (
+          <WordleRow
+            answer={answer}
+            width={answer.length}
+            active={gameState === GameState.InProgress && idx === activeRow}
+            onRowSubmitGuess={handleRowSubmitGuess}
+          />
+        ))}
+      </div>
     </div>
   );
 }
