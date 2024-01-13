@@ -78,12 +78,11 @@
 
 .wordle > #dummy-input {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 2rem;
+  height: 1.5rem;
+  margin-bottom: 0.3rem;
   font-weight: bold;
   text-transform: uppercase;
   color: white;
   background-color: transparent;
-  border: 3px solid var(--color-neutral);
+  border: 2px solid var(--color-neutral);
 }

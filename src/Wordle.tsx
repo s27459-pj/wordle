@@ -74,6 +74,9 @@ function Wordle({
   return (
     <div className="wordle">
       {status && <div className="status">{status}</div>}
+      {gameState === GameState.InProgress && (
+        <input id="dummy-input" type="text" placeholder="Click to type..." />
+      )}
       <div className="row-wrapper">
         {Array.from({ length: attempts }).map((_, idx) => (
           <WordleRow
@@ -85,7 +88,6 @@ function Wordle({
         ))}
       </div>
       <WordleLetters letters={letters} />
-      <input id="dummy-input" type="text" placeholder="Click to type..." />
     </div>
   );
 }
