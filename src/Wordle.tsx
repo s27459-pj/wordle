@@ -7,8 +7,8 @@ enum GameState {
   Lost = 2,
 }
 
-const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
-type UsedLetter = {
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
+type Letter = {
   letter: string;
   status: CellState;
 };
@@ -19,36 +19,47 @@ function Wordle({
 }: { answer: string; attempts?: number }) {
   const [gameState, setGameState] = useState(GameState.InProgress);
   const [activeRow, setActiveRow] = useState(0);
-  const [usedLetters, setUsedLetters] = useState<UsedLetter[]>([]);
-
-  const addUsedLetter = useCallback(
-    (letter: string, status: UsedLetter["status"]) => {
-      setUsedLetters((usedLetters) => [...usedLetters, { letter, status }]);
-    },
-    [],
+  // prefill usedLetters with all letters in the alphabet
+  const [letters, setLetters] = useState<Letter[]>(
+    ALPHABET.map((letter) => ({ letter, status: CellState.Empty })),
   );
+
+  const updateLetter = useCallback((letter: string, status: CellState) => {
+    setLetters((letters) =>
+      letters.map((l) => {
+        if (l.letter === letter) {
+          // Empty can be upgraded to any status
+          if (l.status === CellState.Empty) return { ...l, status };
+          // Neutral can be upgraded to Incorrect or Correct
+          if (l.status === CellState.Neutral && status !== CellState.Empty)
+            return { ...l, status };
+          // Incorrect can only be upgraded to Correct
+          if (l.status === CellState.Incorrect && status === CellState.Correct)
+            return { ...l, status };
+          // Correct can't be upgraded
+          if (l.status === CellState.Correct) return l;
+        }
+        return l;
+      }),
+    );
+  }, []);
 
   const handleRowSubmitGuess = useCallback(
     (guess: string) => {
       setActiveRow((activeRow) => activeRow + 1);
-      for (const letter of guess) {
-        // FIXME: This doesn't replace existing used letters with a new status
-        //        when it's better (e.g. incorrect -> correct)
-        if (usedLetters.find((ul) => ul.letter === letter)) continue;
-        if (answer.includes(letter)) {
-          if (guess.indexOf(letter) === answer.indexOf(letter)) {
-            addUsedLetter(letter, CellState.Correct);
-          } else {
-            addUsedLetter(letter, CellState.Incorrect);
-          }
+      for (const [i, letter] of guess.split("").entries()) {
+        if (answer[i] === letter) {
+          updateLetter(letter, CellState.Correct);
+        } else if (answer.includes(letter)) {
+          updateLetter(letter, CellState.Incorrect);
         } else {
-          addUsedLetter(letter, CellState.Neutral);
+          updateLetter(letter, CellState.Neutral);
         }
       }
       if (guess === answer) setGameState(GameState.Won);
       else if (activeRow === attempts - 1) setGameState(GameState.Lost);
     },
-    [answer, attempts, activeRow, usedLetters, addUsedLetter],
+    [answer, attempts, activeRow, updateLetter],
   );
 
   const status = useMemo(() => {
@@ -73,7 +84,7 @@ function Wordle({
           />
         ))}
       </div>
-      <WordleUsedLetters usedLetters={usedLetters} />
+      <WordleLetters letters={letters} />
     </div>
   );
 }
@@ -108,7 +119,7 @@ function WordleRow({
         submitGuess();
         return;
       }
-      if (!LETTERS.includes(e.key.toLowerCase())) return;
+      if (!ALPHABET.includes(e.key.toLowerCase())) return;
       if (guess.length >= width) return;
       setGuess((guess) => [...guess, e.key.toLowerCase()]);
     };
@@ -163,23 +174,17 @@ function WordleCell({ state, letter }: { state: CellState; letter?: string }) {
   return <div className={`wordle__cell ${stateClassName}`}>{letter}</div>;
 }
 
-function WordleUsedLetters({ usedLetters }: { usedLetters: UsedLetter[] }) {
+function WordleLetters({ letters }: { letters: Letter[] }) {
   return (
     <div className="used-letters">
-      {LETTERS.map((letter) => {
-        const usedLetter = usedLetters.find((ul) => ul.letter === letter);
-        return (
-          <WordleUsedLetter
-            letter={letter}
-            status={usedLetter?.status ?? CellState.Empty}
-          />
-        );
+      {letters.map(({ letter, status }) => {
+        return <WordleLetter letter={letter} status={status} />;
       })}
     </div>
   );
 }
 
-function WordleUsedLetter({ letter, status }: UsedLetter) {
+function WordleLetter({ letter, status }: Letter) {
   const usedLetterClassName = useMemo(() => {
     switch (status) {
       case CellState.Empty:
