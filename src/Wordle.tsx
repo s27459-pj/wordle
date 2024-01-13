@@ -85,6 +85,7 @@ function Wordle({
         ))}
       </div>
       <WordleLetters letters={letters} />
+      <input id="dummy-input" type="text" placeholder="Click to type..." />
     </div>
   );
 }

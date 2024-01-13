@@ -75,3 +75,15 @@
 .wordle > .used-letters > .letter--correct {
   color: var(--color-correct);
 }
+
+.wordle > #dummy-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+  background-color: transparent;
+  border: 3px solid var(--color-neutral);
+}
