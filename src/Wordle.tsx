@@ -67,9 +67,9 @@ function Wordle({
       case GameState.Won:
         return "You guessed the correct word. Congrats!";
       case GameState.Lost:
-        return "You ran out of attempts. Game over!";
+        return `You ran out of attempts. Answer: ${answer.toUpperCase()}.`;
     }
-  }, [gameState]);
+  }, [gameState, answer]);
 
   return (
     <div className="wordle">
